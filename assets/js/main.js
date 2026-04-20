@@ -3,33 +3,38 @@ import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
+// =============================
+// VARIABLES
+// =============================
 const manager = new THREE.LoadingManager();
 
-let camera, scene, renderer, stats, object, loader, guiMorphsFolder;
-let mixer;
+let camera, scene, renderer, stats;
+let object, mixer;
+let clock = new THREE.Clock();
 
-const timer = new THREE.Timer();
-timer.connect(document);
+let actions = {};
+let activeAction;
+let previousAction;
 
-const params = {
-    asset: 'Samba Dancing'
+// 🔥 IMPORTANTE: turn.fbx tiene modelo
+const baseModel = 'turn.fbx';
+
+// Animaciones externas (SIN SKIN)
+const animationsList = {
+    sitting: 'sitting.fbx',
+    thumbs: 'thumbs_up.fbx',
+    snatch: 'snatch.fbx',
+    phone: 'phone.fbx'
 };
 
-const assets = [
-    'Samba Dancing',
-    'morph_test',
-    'monkey',
-    'monkey_embedded_texture',
-    'vCube',
-];
-
+// =============================
+// INIT
+// =============================
 init();
 
 function init() {
 
-    // ✅ USAR EL CONTENEDOR DEL HTML
     const container = document.getElementById('container');
 
     const width = container.clientWidth;
@@ -40,39 +45,32 @@ function init() {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xa0a0a0);
-    scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 5);
-    hemiLight.position.set(0, 200, 0);
+    // Luces
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
     scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 5);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
     dirLight.position.set(0, 200, 100);
-    dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // suelo
+    // Suelo
     const mesh = new THREE.Mesh(
         new THREE.PlaneGeometry(2000, 2000),
-        new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
+        new THREE.MeshPhongMaterial({ color: 0x999999 })
     );
     mesh.rotation.x = -Math.PI / 2;
-    mesh.receiveShadow = true;
     scene.add(mesh);
 
     const grid = new THREE.GridHelper(2000, 20);
-    grid.material.opacity = 0.2;
-    grid.material.transparent = true;
     scene.add(grid);
 
-    loader = new FBXLoader(manager);
-    loadAsset(params.asset);
+    // 🔥 Cargar modelo base (turn)
+    loadBaseModel();
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.setAnimationLoop(animate);
-    renderer.shadowMap.enabled = true;
 
     container.appendChild(renderer.domElement);
 
@@ -85,35 +83,116 @@ function init() {
     stats = new Stats();
     container.appendChild(stats.dom);
 
-    const gui = new GUI();
-    gui.add(params, 'asset', assets).onChange(loadAsset);
-
-    guiMorphsFolder = gui.addFolder('Morphs').hide();
+    setupKeyboard();
 }
 
-function loadAsset(asset) {
+// =============================
+// CARGAR MODELO BASE
+// =============================
+function loadBaseModel() {
 
-    loader.load('./assets/models/fbx/' + asset + '.fbx', function (group) {
+    const loader = new FBXLoader(manager);
 
-        if (object) {
-            scene.remove(object);
-        }
+    loader.load('./assets/models/fbx/' + baseModel, (fbx) => {
 
-        object = group;
+        object = fbx;
+        object.scale.set(1, 1, 1);
 
-        if (object.animations && object.animations.length) {
-            mixer = new THREE.AnimationMixer(object);
-            mixer.clipAction(object.animations[0]).play();
-        }
+        mixer = new THREE.AnimationMixer(object);
+
+        // 🔥 usar animación del mismo turn
+        const baseClip = fbx.animations[0];
+        const baseAction = mixer.clipAction(baseClip);
+
+        actions['turn'] = baseAction;
+        activeAction = baseAction;
+        baseAction.play();
 
         scene.add(object);
-    });
 
+        loadAnimations(); // cargar las demás
+    });
 }
 
+// =============================
+// CARGAR ANIMACIONES EXTERNAS
+// =============================
+function loadAnimations() {
+
+    const loader = new FBXLoader(manager);
+
+    for (const key in animationsList) {
+
+        loader.load('./assets/animations/' + animationsList[key], (anim) => {
+
+            const clip = anim.animations[0];
+            const action = mixer.clipAction(clip);
+
+            actions[key] = action;
+        });
+    }
+}
+
+// =============================
+// TRANSICIÓN SUAVE
+// =============================
+function fadeToAction(name, duration = 0.5) {
+
+    if (!actions[name]) return;
+
+    previousAction = activeAction;
+    activeAction = actions[name];
+
+    if (previousAction !== activeAction) {
+
+        previousAction.fadeOut(duration);
+
+        activeAction
+            .reset()
+            .fadeIn(duration)
+            .play();
+    }
+}
+
+// =============================
+// TECLADO
+// =============================
+function setupKeyboard() {
+
+    window.addEventListener('keydown', (e) => {
+
+        switch (e.key) {
+
+            case '1':
+                fadeToAction('sitting');
+                break;
+
+            case '2':
+                fadeToAction('thumbs');
+                break;
+
+            case '3':
+                fadeToAction('snatch');
+                break;
+
+            case '4':
+                fadeToAction('phone');
+                break;
+
+            case '5':
+                fadeToAction('turn');
+                break;
+        }
+    });
+}
+
+// =============================
+// RESIZE
+// =============================
 function onWindowResize() {
 
     const container = document.getElementById('container');
+
     const width = container.clientWidth;
     const height = container.clientHeight;
 
@@ -123,11 +202,12 @@ function onWindowResize() {
     renderer.setSize(width, height);
 }
 
+// =============================
+// ANIMATE
+// =============================
 function animate() {
 
-    timer.update(); // 🔥 ESTA LÍNEA ES CLAVE
-
-    const delta = timer.getDelta();
+    const delta = clock.getDelta();
 
     if (mixer) mixer.update(delta);
 
