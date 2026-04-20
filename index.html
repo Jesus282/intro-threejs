@@ -9,59 +9,51 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Tus estilos -->
-    <link rel="stylesheet" href="./assets/css/main.css">
+    <!-- Estilos -->
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-dark bg-dark px-4">
-        <span class="navbar-brand mb-0 h1">Mixamo Controller</span>
+    <nav class="navbar navbar-dark bg-black px-4">
+        <span class="navbar-brand fw-bold">Mixamo Controller</span>
+        <span class="text-secondary small">Three.js Animation Viewer</span>
     </nav>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- CONTENIDO -->
     <div class="container-fluid">
-        <div class="row">
+        <div class="row g-0">
 
-            <!-- PANEL LATERAL -->
-            <div class="col-md-3 bg-dark text-white p-4" style="height: 85vh;">
+            <!-- PANEL -->
+            <div class="col-md-3 panel p-4">
 
-                <h4 class="mb-4">Controles</h4>
+                <h5 class="mb-4 text-uppercase text-secondary">Animaciones</h5>
 
-                <p><strong>1:</strong> Sitting</p>
-                <p><strong>2:</strong> Sitting Thumbs Up</p>
-                <p><strong>3:</strong> Snatch</p>
-                <p><strong>4:</strong> Talking on Phone</p>
-                <p><strong>5:</strong> Right Turn</p>
+                <div class="list-group">
 
-                <hr>
+                    <button class="list-group-item list-group-item-action" data-key="1">Sitting</button>
+                    <button class="list-group-item list-group-item-action" data-key="2">Thumbs Up</button>
+                    <button class="list-group-item list-group-item-action" data-key="3">Snatch</button>
+                    <button class="list-group-item list-group-item-action" data-key="4">Phone</button>
+                    <button class="list-group-item list-group-item-action" data-key="5">Turn</button>
 
-                <p class="small">
-                    Modelo y animaciones desde 
-                    <a href="https://www.mixamo.com/" target="_blank" class="text-info">Mixamo</a>
-                </p>
+                </div>
+
+                <div class="mt-4 small text-secondary">
+                    <p>Usa teclado (1–5)</p>
+                    <p>o haz clic</p>
+                </div>
 
             </div>
 
-            <!-- VISOR THREE -->
-            <div class="col-md-9 p-0">
+            <!-- VIEWER -->
+            <div class="col-md-9 viewer">
 
-                <div id="container" style="width: 100%; height: 85vh; position: relative;">
+                <div id="container">
 
-                    <!-- INFO SUPERIOR -->
-                    <div id="info" style="
-                        position: absolute;
-                        top: 10px;
-                        left: 10px;
-                        background: rgba(0,0,0,0.5);
-                        color: white;
-                        padding: 10px;
-                        border-radius: 8px;
-                        font-size: 13px;
-                    ">
-                        <a href="https://threejs.org" target="_blank" class="text-info">three.js</a> + FBXLoader
+                    <div id="info">
+                        <strong>Three.js</strong> + Mixamo
                     </div>
 
                 </div>
@@ -72,9 +64,9 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-dark text-white text-center py-3">
-        <p class="mb-0">Desarrollado por: Jesús (Ing. en Sistemas)</p>
-        <p class="mb-0">© 2026 - Proyecto Three.js + Mixamo</p>
+    <footer>
+        <p>Jesús — Ingeniería en Sistemas</p>
+        <p class="small text-secondary mb-0">Proyecto Three.js · 2026</p>
     </footer>
 
     <!-- IMPORTMAP -->
@@ -85,6 +77,16 @@
             "three/addons/": "./assets/jsm/"
         }
     }
+    </script>
+
+    <!-- BOTONES → JS -->
+    <script>
+        document.querySelectorAll('.list-group-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.key;
+                window.dispatchEvent(new KeyboardEvent('keydown', { key }));
+            });
+        });
     </script>
 
     <!-- MAIN -->
