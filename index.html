@@ -4,27 +4,51 @@
 <head>
     <title>three.js webgl - FBX loader</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="./assets/css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
 <body>
-    <div id="info">
-        <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - FBXLoader<br />
-        Character and animation from <a href="https://www.mixamo.com/" target="_blank" rel="noopener">Mixamo</a>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <h1>FBX Viewer</h1>
+        <div class="links">
+            <a href="#">Inicio</a>
+            <a href="#">Proyecto</a>
+            <a href="#">Contacto</a>
+        </div>
     </div>
 
-    <script type="importmap">
-			{
-				"imports": {
-					"three": "./assets/builds/three.module.js",
-					"three/addons/": "./assets/jsm/"
-				}
-			}
-		</script>
+    <!-- CONTENEDOR THREE -->
+    <div id="container">
+        <div id="info">
+            <a href="https://threejs.org" target="_blank">three.js</a> - FBXLoader<br>
+            Character and animation from <a href="https://www.mixamo.com/" target="_blank">Mixamo</a>
+        </div>
+    </div>
 
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>Desarrollado por: Jesús (Ing. en Sistemas)</p>
+        <p>© 2026 - Proyecto Three.js</p>
+    </div>
+
+    <!-- IMPORTMAP -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./assets/builds/three.module.js",
+            "three/addons/": "./assets/jsm/"
+        }
+    }
+    </script>
+
+    <!-- MAIN -->
     <script type="module" src="./assets/js/main.js"></script>
 
 </body>
 
-</html>
+</html>s
